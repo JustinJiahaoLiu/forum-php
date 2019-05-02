@@ -1,0 +1,6 @@
+.num_posts_col { text-align: center; }
+
+.arr-right .breadcrumb-item+.breadcrumb-item::before {
+ 
+  content: "›";
+}
