@@ -62,7 +62,7 @@ $display_block .= <<<END_OF_TEXT
 <td>$post_owner<br/><br/>
 created on:<br/>$post_create_time</td>
 <td>$post_text<br/><br/>
-<a href="replytopost.php?post_id=$post_id">
+<a href="replytopost.php?forum_id=$forum_id&forum_name=$forum_name&post_id=$post_id">
 <strong>REPLY TO POST</strong></a></td>
 </tr>
 END_OF_TEXT;

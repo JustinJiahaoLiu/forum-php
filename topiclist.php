@@ -21,37 +21,64 @@ $display_block = "<p><em>No topics exist.</em></p>";
 } else {
     //create the display string
 $display_block = <<<END_OF_TEXT
-<table>
+<table class="table">
+    <thead class="bg-info text-white">
+    <tr>
+      <th scope="col">Posts</th>
+      <th scope="col">Topics</th>
+      <th scope="col">Owner</th>
+      <th scope="col">Last post</th>
+    </tr>
+    </thead>
 <tr>
-<th>TOPIC TITLE</th>
-<th># of POSTS</th>
-</tr>
 END_OF_TEXT;
 
 while ($topic_info = mysqli_fetch_array($get_topics_res)) {
-$topic_id = $topic_info['topic_id'];
-$topic_title = stripslashes($topic_info['topic_title']);
-$topic_create_time = $topic_info['fmt_topic_create_time'];
-$topic_owner = stripslashes($topic_info['topic_owner']);
+    $topic_id = $topic_info['topic_id'];
+    $topic_title = stripslashes($topic_info['topic_title']);
+    $topic_create_time = $topic_info['fmt_topic_create_time'];
+    $topic_owner = stripslashes($topic_info['topic_owner']);
 
-//get number of posts
-$get_num_posts_sql = "SELECT COUNT(post_id) AS post_count FROM
-    forum_posts WHERE topic_id = '".$topic_id."'";
+    //get number of posts
+    $get_num_posts_sql = "SELECT COUNT(post_id) AS post_count FROM
+        forum_posts WHERE topic_id = '".$topic_id."'";
 
-$get_num_posts_res = mysqli_query($mysqli, $get_num_posts_sql)
-or die(mysqli_error($mysqli));
+    $get_num_posts_res = mysqli_query($mysqli, $get_num_posts_sql)
+    or die(mysqli_error($mysqli));
 
-while ($posts_info = mysqli_fetch_array($get_num_posts_res)) {
-        $num_posts = $posts_info['post_count'];
-}
+    while ($posts_info = mysqli_fetch_array($get_num_posts_res)) {
+            $num_posts = $posts_info['post_count'];
+    }
+
+    //get the last post
+    $get_last_post_sql = "SELECT * FROM forum_posts WHERE forum_id = '".$forum_id."'
+    ORDER BY post_create_time DESC LIMIT 1";
+
+    $get_last_post_res = mysqli_query($mysqli, $get_last_post_sql)
+    or die(mysqli_error($mysqli));
+    while ($post_info = mysqli_fetch_array($get_last_post_res)) {
+            $last_post_owner = $post_info['post_owner'];
+            $last_post_time = $post_info['post_create_time'];
+    }
 
 //add to display
 $display_block .= <<<END_OF_TEXT
+<tbody>
 <tr>
-<td><a href="showtopic.php?topic_id=$topic_id&forum_id=$forum_id&forum_name=$forum_name">
-<strong>$topic_title</strong></a><br/>
-Created on $topic_create_time by $topic_owner</td>
-<td class="num_posts_col">$num_posts</td>
+<td>$num_posts</td>
+
+<th scope="row">
+<a href="showtopic.php?topic_id=$topic_id&forum_id=$forum_id&forum_name=$forum_name">$topic_title</a>
+</th>
+<td>
+<span class='text-primary'>$topic_owner</span>
+<p>$topic_create_time</p>
+</td>
+
+<td>
+<span class='text-primary'>$last_post_owner</span>
+<p>$last_post_time</p>
+</td>
 </tr>
 END_OF_TEXT;
 }
@@ -70,7 +97,7 @@ $display_block .= "</table>";
 <!DOCTYPE html>
 <html>
 <head>
-<title>Topics in My Forum</title>
+<title><?php echo $forum_name?></title>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -90,9 +117,9 @@ include 'layouts/navbar.php';
 </nav>
 
 
-<h1>Topics in My Forum</h1>
 <?php echo $display_block; ?>
-<p>Would you like to <a href="addtopic.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>">add a topic</a>?</p>
+<a class="btn btn-info" href="addtopic.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>">    
+&#10133; Add a topic</a>
 </div>
 </body>
 </html>
