@@ -26,7 +26,7 @@ include 'layouts/navbar.php';
 
 <div class="container">
     <h3>Add a Topic</h3>
-    <h5>to <span class= "text-primary"><?php echo $forum_name?></span></h5>
+    <h5>to <span class= "text-info"><?php echo $forum_name?></span></h5>
     <form method="post" action="do_addtopic.php">
         <div class="form-group">
         <input type="text" name="forum_id" value="<?php echo $forum_id ?>" hidden>
@@ -47,7 +47,7 @@ include 'layouts/navbar.php';
         <textarea class="form-control" id="post_text" name="post_text" rows="8"cols="40" ></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary" name="submit" value="submit">Add Topic</button>
+        <button type="submit" class="btn btn-info" name="submit" value="submit">Add Topic</button>
     </form>
 </div>
 </body>

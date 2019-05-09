@@ -64,6 +64,7 @@ include 'layouts/navbar.php';
 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
 	<div class="form-group">
         <input type="text" name="forum_id" value="<?php echo $forum_id ?>" hidden>
+        <input type="text" name="forum_name" value="<?php echo $forum_name ?>" hidden>
     </div>
 <p><label for="post_owner">Your Email Address:</label><br/>
 <input type="email" id="post_owner" name="post_owner" size="40"
@@ -88,14 +89,14 @@ mysqli_close($mysqli);
 } else if ($_POST) {
 //check for required items from form
 if ((!$_POST['topic_id']) || (!$_POST['post_text']) ||
-(!$_POST['post_owner']) || (!$_POST['forum_id'])) {
+(!$_POST['post_owner']) || (!$_POST['forum_id']) || (!$_POST['forum_name'])) {
 header("Location: topiclist.php");
 exit;
 }
 
 //create safe values for use
 $safe_forum_id = mysqli_real_escape_string($mysqli, $_POST['forum_id']);
-
+$safe_forum_name = mysqli_real_escape_string($mysqli, $_POST['forum_name']);
 $safe_topic_id = mysqli_real_escape_string($mysqli, $_POST['topic_id']);
 $safe_post_text = mysqli_real_escape_string($mysqli, $_POST['post_text']);
 $safe_post_owner = mysqli_real_escape_string($mysqli, $_POST['post_owner']);
@@ -112,7 +113,7 @@ or die(mysqli_error($mysqli));
 mysqli_close($mysqli);
 
 //redirect user to topic
-header("Location: showtopic.php?topic_id=".$_POST['topic_id']."&forum_id=$forum_id&forum_name=$forum_name");
+header("Location: showtopic.php?topic_id=$safe_topic_id&forum_id=$safe_forum_id&forum_name=$safe_forum_name");
 exit;
 }
 ?>
