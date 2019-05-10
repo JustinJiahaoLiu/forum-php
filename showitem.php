@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 //connect to database
 include 'ch21_include.php';
 doDB();
@@ -10,7 +12,7 @@ $safe_item_id = mysqli_real_escape_string($mysqli, $_GET['item_id']);
 
 //validate item
 $get_item_sql = "SELECT c.id as cat_id, c.cat_title, si.item_title,
-si.item_price, si.item_desc, si.item_image FROM store_items
+si.item_price, si.item_desc, si.item_image, si.item_stock FROM store_items
 AS si LEFT JOIN store_categories AS c on c.id = si.cat_id
 WHERE si.id = '".$safe_item_id."'";
 
@@ -29,6 +31,7 @@ if (mysqli_num_rows($get_item_res) < 1) {
 	$item_price = $item_info['item_price'];
 	$item_desc = stripslashes($item_info['item_desc']);
 	$item_image = $item_info['item_image'];
+	$item_stock = $item_info['item_stock'];
 }
 
 //make breadcrumb trail & display of item
@@ -41,6 +44,8 @@ $item_title</strong></p>
 <div style="float: left; padding-left: 12px">
 <p><strong>Description:</strong><br/>$item_desc</p>
 <p><strong>Price:</strong> \$$item_price</p>
+<p><strong>Stock:</strong> $item_stock</p>
+<form method="post" action="addtocart.php">
 END_OF_TEXT;
 
 //free result
@@ -54,11 +59,16 @@ $get_colors_res = mysqli_query($mysqli, $get_colors_sql)
 or die(mysqli_error($mysqli));
 
 if (mysqli_num_rows($get_colors_res) > 0) {
-	$display_block .= "<p><strong>Available Colors:</strong><br/>";
+	$display_block .= "<p><label for=\"sel_item_color\">
+		Available Colors:</label><br/>
+		<select id=\"sel_item_color\" name=\"sel_item_color\">";
+
 	while ($colors = mysqli_fetch_array($get_colors_res)) {
 		$item_color = $colors['item_color'];
-		$display_block .= $item_color."<br/>";
+		$display_block .= "<option value=\"".$item_color."\">".
+			$item_color."</option>";
 	}
+	$display_block .= "</select></p>";
 }
 //free result
 mysqli_free_result($get_colors_res);
@@ -71,26 +81,51 @@ $get_sizes_res = mysqli_query($mysqli, $get_sizes_sql)
 or die(mysqli_error($mysqli));
 
 if (mysqli_num_rows($get_sizes_res) > 0) {
-	$display_block .= "<p><strong>Available Sizes:</strong><br/>";
+	$display_block .= "<p><label for=\"sel_item_size\">
+		Available Sizes:</label><br/>
+		<select id=\"sel_item_size\" name=\"sel_item_size\">";
 	while ($sizes = mysqli_fetch_array($get_sizes_res)) {
-	$item_size = $sizes['item_size'];
-	$display_block .= $item_size."<br/>";
+		$item_size = $sizes['item_size'];
+		$display_block .= "<option value=\"".$item_size."\">".
+			$item_size."</option>";
 	}
 }
+$display_block .= "</select></p>";
 //free result
 mysqli_free_result($get_sizes_res);
 
-$display_block .= "</div>";
+$display_block .= "<p><label for=\"sel_item_qty\">Select Quantity:</label>
+	<select id=\"sel_item_qty\" name=\"sel_item_qty\">";
 }
+
+for($i=1; $i<11; $i++) {
+	$display_block .= "<option value=\"".$i."\">".$i."</option>";
+}
+
+$display_block .= <<<END_OF_TEXT
+</select></p>
+<input type="hidden" name="sel_item_id"
+value="$_GET[item_id]" />
+<button type="submit" name="submit" value="submit">
+Add to Cart</button>
+</form>
+</div>
+END_OF_TEXT;
+
 //close connection to MySQL
 mysqli_close($mysqli);
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <title>My Store</title>
+<style type="text/css">
+label {font-weight: bold;}
+</style>
 </head>
 <body>
 <?php echo $display_block; ?>
 </body>
 </html>
+
