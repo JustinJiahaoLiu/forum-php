@@ -5,8 +5,6 @@ session_start();
 include 'ch21_include.php';
 doDB();
 
-$display_block = "<h1>Your order</h1>";
-
 //check for cart items based on user session id
 $get_cart_sql = "SELECT st.id, si.item_title, si.item_price,
 st.sel_item_qty, st.sel_item_size, st.sel_item_color FROM
@@ -16,6 +14,8 @@ si.id = st.sel_item_id WHERE session_id =
 
 $get_cart_res = mysqli_query($mysqli, $get_cart_sql)
 or die(mysqli_error($mysqli));
+
+$display_block = "<h1>Your Order</h1>";
 
 $display_block .= <<<END_OF_TEXT
 <table>
@@ -57,13 +57,51 @@ END_OF_TEXT;
 
 //Display total price for order
 $display_block .= <<<END_OF_TEXT
-<td colspan='6'>Toal: \$ $total_price_order</td>;
+<td colspan='6'>Toal: \$ $total_price_order</td>
+</table>
+<br/>
+<form id="form" action="generateorder.php" method="POST">
+	  <div class="form-row">
+	    <div class="col-md-4 mb-3">
+	      <label for="name">Name</label>
+	      <input type="text" class="form-control" id="name" name="order_name" placeholder="Full name" value="" required>
+	  	</div>
+	  </div>
 
-<form action="" method="POST">
-<label for=
+	  <div class="form-row">
+	    <div class="col-md-8 mb-3">
+	      <label for="address">Address</label>
+	      <input type="text" class="form-control" id="address" name="order_address" placeholder="Street" value="" required>
+	  	</div>
+	  </div>
 
+	  <div class="form-row">
+	    <div class="col-md-6 mb-3">
+	      <label for="city">City</label>
+	      <input type="text" class="form-control" id="city" name="order_city" placeholder="City" required>
+	    </div>
+	    <div class="col-md-3 mb-3">
+	      <label for="state">State</label>
+	      <input type="text" class="form-control" id="state" name="order_state" placeholder="State" required>
+	    </div>
+	    <div class="col-md-3 mb-3">
+	      <label for="zip">Zip</label>
+	      <input type="text" class="form-control" id="zip" name="order_zip" placeholder="Zip" required>
+	    </div>
+	  </div>
+	   <div class="form-row">
+	    <div class="col-md-4 mb-3">
+	      <label for="tel">Tel</label>
+	      <input type="tel" class="form-control" id="tel" name="order_tel" placeholder="Tel" value="" required>
+	  	</div>
+
+	  	<div class="col-md-4 mb-3">
+	      <label for="email">Email</label>
+	      <input type="email" class="form-control " id="email" name="order_email" placeholder="JaneDoe@email.com" value="" required>
+	  	</div>
+	  </div>
+	  <button class="btn btn-primary" type="submit">Submit form</button>
 </form>
-
 END_OF_TEXT;
 
 //free result
@@ -105,6 +143,8 @@ text-align: center;
 <?php
 include 'layouts/navbar.php';
 ?>
-<?php echo $display_block; ?>
+<div class="container">
+	<?php echo $display_block; ?>
+</div>
 </body>
 </html>

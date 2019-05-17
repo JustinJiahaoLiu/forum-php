@@ -7,12 +7,14 @@ doDB();
 
 $display_block = "<h1>Your Shopping Cart</h1>";
 
-//check for cart items based on user session id
-$get_cart_sql = "SELECT st.id, si.item_title, si.item_price,
-st.sel_item_qty, st.sel_item_size, st.sel_item_color FROM
-store_shoppertrack AS st LEFT JOIN store_items AS si ON
-si.id = st.sel_item_id WHERE session_id =
-'".$_COOKIE['PHPSESSID']."'";
+if(isset($_COOKIE['PHPSESSID'])){
+	//check for cart items based on user session id
+	$get_cart_sql = "SELECT st.id, si.item_title, si.item_price,
+	st.sel_item_qty, st.sel_item_size, st.sel_item_color FROM
+	store_shoppertrack AS st LEFT JOIN store_items AS si ON
+	si.id = st.sel_item_id WHERE session_id =
+	'".$_COOKIE['PHPSESSID']."'";
+}
 
 $get_cart_res = mysqli_query($mysqli, $get_cart_sql)
 or die(mysqli_error($mysqli));
