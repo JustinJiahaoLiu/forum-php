@@ -12,12 +12,15 @@ $clean_order_state = mysqli_real_escape_string($mysqli, $_POST['order_state']);
 $clean_order_zip = mysqli_real_escape_string($mysqli, $_POST['order_zip']);
 $clean_order_tel = mysqli_real_escape_string($mysqli, $_POST['order_tel']);
 $clean_order_email = mysqli_real_escape_string($mysqli, $_POST['order_email']);
+$clean_item_total = mysqli_real_escape_string($mysqli, $_POST['item_total']);
 
-$store_orders = "INSERT INTO `store_orders`(`order_date`, `order_name`, `order_address`, `order_city`, `order_state`, `order_zip`, `order_tel`, `order_email`, `item_total`) VALUES ('".$clean_order_name."','".$clean_order_address."','".$clean_order_city."','".$clean_order_state."','".$clean_order_zip."','".$clean_order_tel."','".$clean_order_email."')";
+$store_orders = "INSERT INTO `store_orders`(`order_date`, `order_name`, `order_address`, `order_city`, `order_state`, `order_zip`, `order_tel`, `order_email`, `item_total`) VALUES (now(),'".$clean_order_name."','".$clean_order_address."','".$clean_order_city."','".$clean_order_state."','".$clean_order_zip."','".$clean_order_tel."','".$clean_order_email."','".$clean_item_total."')";
 
+$store_orders_res = mysqli_query($mysqli, $store_orders) or die(mysqli_error($mysqli));
 
-
-
+if($store_orders_res){
+	$last_id = mysqli_insert_id($mysqli);
+}
 
 //check for cart items based on user session id
 $get_cart_sql = "SELECT st.id, si.item_title, si.item_price,
@@ -31,23 +34,30 @@ or die(mysqli_error($mysqli));
 
 
 /*----------------------Store Orders Items---------------------*/
-$total_price_order = 0;
-
-
-$store_orders_items = ""
-
 while ($cart_info = mysqli_fetch_array($get_cart_res)) {
-	$id = $cart_info['id'];
-	$item_title = stripslashes($cart_info['item_title']);
-	$item_price = $cart_info['item_price'];
-	$item_qty = $cart_info['sel_item_qty'];
-	$item_color = $cart_info['sel_item_color'];
-	$item_size = $cart_info['sel_item_size'];
-	$total_price = sprintf("%.02f", $item_price * $item_qty);
-	//Add up to order price
-	$total_price_order += $total_price;
+	$id = mysqli_real_escape_string($mysqli, $cart_info['id']);
+	
+	$item_price = mysqli_real_escape_string($mysqli, $cart_info['item_price']);
+	$item_qty = mysqli_real_escape_string($mysqli, $cart_info['sel_item_qty']);
+	$item_color = mysqli_real_escape_string($mysqli, $cart_info['sel_item_color']);
+	$item_size = mysqli_real_escape_string($mysqli, $cart_info['sel_item_size']);
 
+	$store_orders_items = "INSERT INTO `store_orders_items`(`order_id`, `sel_item_id`, `sel_item_qty`, `sel_item_size`, `sel_item_color`, `sel_item_price`) VALUES ('".$last_id."','".$id."','".$item_qty."','".$item_size."','".$item_color."','".$item_price."')";
 
+	$store_orders_items_res = mysqli_query($mysqli, $store_orders_items)
+or die(mysqli_error($mysqli));
+}
+
+//clear cookie
+if (isset($_COOKIE['PHPSESSID'])) {
+    setcookie('PHPSESSID', null, -1, '/');
+}
+
+//free result
+mysqli_free_result($get_cart_res);
+
+//close connection to MySQL
+mysqli_close($mysqli);
 
 ?>
 

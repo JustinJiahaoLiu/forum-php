@@ -14,9 +14,7 @@ if(isset($_COOKIE['PHPSESSID'])){
 	store_shoppertrack AS st LEFT JOIN store_items AS si ON
 	si.id = st.sel_item_id WHERE session_id =
 	'".$_COOKIE['PHPSESSID']."'";
-}
-
-$get_cart_res = mysqli_query($mysqli, $get_cart_sql)
+	$get_cart_res = mysqli_query($mysqli, $get_cart_sql)
 or die(mysqli_error($mysqli));
 
 if (mysqli_num_rows($get_cart_res) < 1) {
@@ -69,6 +67,8 @@ mysqli_free_result($get_cart_res);
 
 //close connection to MySQL
 mysqli_close($mysqli);
+
+}
 ?>
 <!DOCTYPE html>
 <html>

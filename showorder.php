@@ -61,6 +61,9 @@ $display_block .= <<<END_OF_TEXT
 </table>
 <br/>
 <form id="form" action="generateorder.php" method="POST">
+	  <div class="form-group">
+	  	<input type="number" name="item_total" value="$total_price_order" hidden>
+	  </div>
 	  <div class="form-row">
 	    <div class="col-md-4 mb-3">
 	      <label for="name">Name</label>
