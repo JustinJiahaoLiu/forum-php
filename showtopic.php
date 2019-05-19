@@ -10,9 +10,27 @@ exit;
 
 $forum_id = $_GET['forum_id'];
 $forum_name = $_GET['forum_name'];
-
 //create safe values for use
 $safe_topic_id = mysqli_real_escape_string($mysqli, $_GET['topic_id']);
+
+$get_posts_count_sql = "SELECT COUNT(post_id) FROM forum_posts
+WHERE topic_id = '".$safe_topic_id."'
+ORDER BY post_create_time ASC";
+
+$get_posts_count_res = mysqli_query($mysqli, $get_posts_count_sql)
+or die(mysqli_error($mysqli));
+
+//------------Set Pagination-----------
+$limit = 3;
+if (isset($_GET["page"])){
+    $page  = $_GET["page"]; 
+}else { $page=1; };
+$start_from = ($page-1) * $limit; 
+
+$row = mysqli_fetch_row($get_posts_count_res);
+$total_records = $row[0];
+$total_pages = ceil($total_records / $limit);
+
 
 //verify the topic exists
 $verify_topic_sql = "SELECT topic_title FROM forum_topics
@@ -36,7 +54,7 @@ DATE_FORMAT(post_create_time,
     '%b %e %Y<br/>%r') AS fmt_post_create_time, post_owner
 FROM forum_posts
 WHERE topic_id = '".$safe_topic_id."'
-ORDER BY post_create_time ASC";
+ORDER BY post_create_time ASC LIMIT $start_from, $limit";
 $get_posts_res = mysqli_query($mysqli, $get_posts_sql)
 or die(mysqli_error($mysqli));
 
@@ -87,6 +105,8 @@ $display_block .= "</table>";
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="js/jquery.simplePagination.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/simplePagination.css"/>
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -100,6 +120,25 @@ $display_block .= "</table>";
 </nav>
 
 <?php echo $display_block; ?>
+<?php
+    $pagLink = "<nav><ul class='pagination'>";
+    for ($i=1; $i<=$total_pages; $i++) {  
+            $pagLink .= "<li><a href=\"showtopic.php?topic_id=$safe_topic_id&forum_id=$forum_id&forum_name=$forum_name&page=".$i."\">".$i."</a></li>";  
+        };  
+    echo $pagLink . "</ul></nav>";
+?>
+
+<script>
+    $(document).ready(function(){
+    $('.pagination').pagination({
+            items: <?php echo $total_records;?>,
+            itemsOnPage: <?php echo $limit;?>,
+            cssStyle: 'compact-theme',
+            currentPage : <?php echo $page;?>,
+            hrefTextPrefix : "showtopic.php?topic_id=<?php echo $safe_topic_id ?>&forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>&page="
+        });
+        });
+</script>
 </div>
 </body>
 </html>

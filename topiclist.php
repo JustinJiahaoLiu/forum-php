@@ -5,20 +5,39 @@ doDB();
 $forum_id = $_GET['forum_id'];
 $forum_name = $_GET['forum_name'];
 
+$get_topics_count_sql = "SELECT COUNT(topic_id) FROM forum_topics
+WHERE forum_id = '". $forum_id."' ORDER BY topic_create_time DESC";
+
+$get_topics_count_res = mysqli_query($mysqli, $get_topics_count_sql)
+or die(mysqli_error($mysqli));
+
+//------------Set Pagination-----------
+$limit = 3;
+if (isset($_GET["page"])){
+    $page  = $_GET["page"]; 
+}else { $page=1; };
+$start_from = ($page-1) * $limit; 
+
+$row = mysqli_fetch_row($get_topics_count_res);
+$total_records = $row[0];
+$total_pages = ceil($total_records / $limit);
+
 //gather the topics by form id
 $get_topics_sql = "SELECT topic_id, topic_title,
 DATE_FORMAT(topic_create_time, '%b %e %Y at %r') AS
 fmt_topic_create_time, topic_owner FROM forum_topics
-WHERE forum_id = '". $forum_id."' 
-ORDER BY topic_create_time DESC";
+WHERE forum_id = '". $forum_id."' ORDER BY topic_create_time DESC LIMIT $start_from, $limit";
 
 $get_topics_res = mysqli_query($mysqli, $get_topics_sql)
 or die(mysqli_error($mysqli));
+
+
 
 if (mysqli_num_rows($get_topics_res) < 1) {
     //there are no topics, so say so
 $display_block = "<p><em>No topics exist.</em></p>";
 } else {
+
     //create the display string
 $display_block = <<<END_OF_TEXT
 <table class="table">
@@ -82,6 +101,7 @@ $display_block .= <<<END_OF_TEXT
 </tr>
 END_OF_TEXT;
 }
+
 //free results
 mysqli_free_result($get_topics_res);
 mysqli_free_result($get_num_posts_res);
@@ -102,7 +122,10 @@ $display_block .= "</table>";
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="js/jquery.simplePagination.js"></script>
+  
     <link rel="stylesheet" href="css/app.css">
+    <link type="text/css" rel="stylesheet" href="css/simplePagination.css"/>
 </head>
 <body>
 <?php
@@ -118,8 +141,27 @@ include 'layouts/navbar.php';
 
 
 <?php echo $display_block; ?>
+<?php
+    $pagLink = "<nav><ul class='pagination'>";
+    for ($i=1; $i<=$total_pages; $i++) {  
+            $pagLink .= "<li><a href=\"topiclist.php?forum_id=$forum_id&forum_name=$forum_name&page=".$i."\">".$i."</a></li>";  
+        };  
+    echo $pagLink . "</ul></nav>";
+?>
 <a class="btn btn-info" href="addtopic.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>">    
 &#10133; Add a topic</a>
 </div>
+
+<script>
+    $(document).ready(function(){
+    $('.pagination').pagination({
+            items: <?php echo $total_records;?>,
+            itemsOnPage: <?php echo $limit;?>,
+            cssStyle: 'light-theme',
+            currentPage : <?php echo $page;?>,
+            hrefTextPrefix : "topiclist.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>&page="
+        });
+        });
+</script>
 </body>
 </html>
