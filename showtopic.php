@@ -61,11 +61,13 @@ or die(mysqli_error($mysqli));
 //create the display string
 $display_block = <<<END_OF_TEXT
 <p>Showing posts for the <strong>$topic_title</strong> topic:</p>
-<table>
+<table class="table table-striped">
+<thead class="bg-info text-white">
 <tr>
-<th>AUTHOR</th>
-<th>POST</th>
+<th style="width:300px;">AUTHOR</th>
+<th style="width:810px;">POST</th>
 </tr>
+</thead>
 END_OF_TEXT;
 
 while ($posts_info = mysqli_fetch_array($get_posts_res)) {
@@ -77,9 +79,9 @@ $post_owner = stripslashes($posts_info['post_owner']);
 //add to display
 $display_block .= <<<END_OF_TEXT
 <tr>
-<td>$post_owner<br/><br/>
+<td><strong>$post_owner</strong><br/><br/>
 created on:<br/>$post_create_time</td>
-<td>$post_text<br/><br/>
+<td style="word-break: break-all;">$post_text<br/><br/>
 <a href="replytopost.php?forum_id=$forum_id&forum_name=$forum_name&post_id=$post_id">
 <strong>REPLY TO POST</strong></a></td>
 </tr>

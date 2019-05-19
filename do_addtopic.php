@@ -8,6 +8,9 @@ if ((!$_POST['forum_id']) ||(!$_POST['topic_owner']) || (!$_POST['topic_title'])
     exit;
 }
 
+$forum_id = $_GET['forum_id'];
+$forum_name = $_GET['forum_name'];
+
 //create safe values for input into the database
 $clean_forum_id = mysqli_real_escape_string($mysqli, $_POST['forum_id']);
 $clean_topic_owner = mysqli_real_escape_string($mysqli, $_POST['topic_owner']);
@@ -46,7 +49,19 @@ topic has been created.</p>";
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 <body>
+<div class="container">
 <h1>New Topic Added</h1>
+<?php
+include 'layouts/navbar.php';
+?>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+        <li class="breadcrumb-item"><a href="topiclist.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name?>"><?php echo $forum_name?></a></li>
+    </ol>
+</nav>
 <?php echo $display_block; ?>
+
+</div>
 </body>
 </html>

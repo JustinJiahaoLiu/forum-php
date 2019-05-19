@@ -27,7 +27,7 @@ include 'layouts/navbar.php';
 <div class="container">
     <h3>Add a Topic</h3>
     <h5>to <span class= "text-info"><?php echo $forum_name?></span></h5>
-    <form method="post" action="do_addtopic.php">
+    <form method="post" action="do_addtopic.php?forum_id=<?php echo $forum_id?>&forum_name=<?php echo $forum_name ?>">
         <div class="form-group">
         <input type="text" name="forum_id" value="<?php echo $forum_id ?>" hidden>
         </div>

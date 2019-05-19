@@ -2,12 +2,12 @@
 function doDB() {
    global $mysqli;
 
-//connect to server and select database; you may need it
-$mysqli = mysqli_connect('localhost','root','','testDB');
+//connect to server and select database - OOP
+$mysqli = new mysqli('localhost','root','','testDB');
 
 //if connection fails, stop script execution
- if (mysqli_connect_errno()) {
-        printf('Connect failed: %s\n', mysqli_connect_error());
+ if ($mysqli->connect_error) {
+        printf('Connect failed: %s\n', $mysqli->connect_error);
  exit();
  }
  }
